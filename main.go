@@ -1,7 +1,15 @@
 package main
 
-import "fmt"
+import (
+	"barramento/config"
+	"fmt"
+)
 
 func main() {
-	fmt.Println("barramento")
+	cfg, err := config.Get()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(cfg)
 }
