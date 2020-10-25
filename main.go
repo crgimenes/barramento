@@ -13,5 +13,7 @@ func main() {
 		return
 	}
 	fmt.Println(cfg)
+
+	fmt.Println("hostname:", cfg.Name)
 	udpserver.Server()
 }

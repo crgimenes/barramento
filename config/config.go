@@ -1,6 +1,7 @@
 package config
 
 import (
+	"os"
 	"sync"
 
 	"github.com/gosidekick/goconfig"
@@ -8,6 +9,7 @@ import (
 
 type Config struct {
 	Node string `json:"node" cfg:"n" cfgDefault:".*" cfgRequired:"true"`
+	Name string `json:"name" cfg:"name" cfgDefault:""`
 }
 
 var (
@@ -21,6 +23,12 @@ func Get() (*Config, error) {
 		goconfig.PrefixEnv = "br"
 		cfg = &Config{}
 		err = goconfig.Parse(cfg)
+		if err != nil {
+			return
+		}
+		if cfg.Name == "" {
+			cfg.Name, err = os.Hostname()
+		}
 	})
 	return cfg, err
 }
