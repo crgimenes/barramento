@@ -2,6 +2,7 @@ package main
 
 import (
 	"barramento/config"
+	"barramento/udpserver"
 	"fmt"
 )
 
@@ -12,4 +13,5 @@ func main() {
 		return
 	}
 	fmt.Println(cfg)
+	udpserver.Server()
 }
