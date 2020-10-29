@@ -1,44 +1,56 @@
 package udp
 
 import (
+	"barramento/config"
 	"fmt"
 	"log"
 	"net"
 )
 
-func broadcast(address string) (*net.UDPConn, error) {
-	addr, err := net.ResolveUDPAddr("udp", address)
+type UDP struct {
+	network     string
+	multicastIP string
+	cfg         *config.Config
+}
+
+func New(network string, cfg *config.Config) *UDP {
+	m := cfg.IPv4
+	if network == "udp6" {
+		m = cfg.IPv6
+	}
+	return &UDP{
+		network:     network,
+		multicastIP: m,
+		cfg:         cfg,
+	}
+}
+
+func (u *UDP) multicast() (*net.UDPConn, error) {
+	addr, err := net.ResolveUDPAddr(u.network, u.multicastIP)
 	if err != nil {
 		return nil, err
 	}
-
-	conn, err := net.DialUDP("udp", nil, addr)
-	if err != nil {
-		return nil, err
-	}
-	return conn, nil
+	conn, err := net.DialUDP(u.network, nil, addr)
+	return conn, err
 }
 
-func Send() {
-	conn, err := broadcast("255.255.255.255:2222")
+func (u *UDP) Send(payload []byte) error {
+	//conn, err := multicast("192.168.0.255:2222")
+	//conn, err := multicast("224.0.0.1:2222")
+	conn, err := u.multicast()
 	if err != nil {
-		fmt.Printf("Some error %v", err)
-		return
+		log.Println("error resolve multicast", err)
+		return err
 	}
-	fmt.Fprintf(conn, "Hi UDP Server, How are you doing?")
-	/*_, err = bufio.NewReader(conn).Read(p)
-	if err == nil {
-		fmt.Printf("%s\n", p)
-	} else {
-		fmt.Printf("Some error %v\n", err)
-	}*/
-	conn.Close()
+	defer conn.Close()
+	_, err = conn.Write(payload)
+	return err
 }
 
-func Server() error {
-	pc, err := net.ListenPacket("udp", ":2222")
+func (u *UDP) Server() error {
+	pc, err := net.ListenPacket(u.network, u.cfg.ServerAddress)
 	if err != nil {
-		log.Fatal(err)
+		log.Println("error listen packet", err)
 	}
 	defer pc.Close()
 
@@ -46,14 +58,14 @@ func Server() error {
 		buf := make([]byte, 1024)
 		n, addr, err := pc.ReadFrom(buf)
 		if err != nil {
+			log.Println("error reading packet", err)
 			continue
 		}
-		go serve(pc, addr, buf[:n])
+		go u.serve(pc, addr, buf[:n])
 	}
-
 }
 
-func serve(pc net.PacketConn, addr net.Addr, buf []byte) {
+func (u *UDP) serve(pc net.PacketConn, addr net.Addr, buf []byte) {
 	fmt.Printf("%s\n", buf)
 	pc.WriteTo(buf, addr)
 }

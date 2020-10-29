@@ -8,8 +8,13 @@ import (
 )
 
 type Config struct {
-	Node string `json:"node" cfg:"n" cfgDefault:".*" cfgRequired:"true"`
-	Name string `json:"name" cfg:"name" cfgDefault:""`
+	Node          string `json:"node" cfg:"n" cfgDefault:".*" cfgRequired:"true"`
+	Name          string `json:"name" cfg:"name" cfgDefault:""`
+	Message       string `json:"message" cfg:"msg"`
+	IPv4          string `json:"ipv4" cfg:"ipv4" cfgDefault:"224.0.0.1:2222" cfgRequired:"true"`
+	IPv6          string `json:"ipv6" cfg:"ipv6" cfgDefault:"[ff02::1%1]:2222" cfgRequired:"true"`
+	ServerAddress string `json:"server_address" cfg:"sa" cfgDefault:":2222" cfgRequired:"true"`
+	ServerMode    bool   `json:"server_mode" cfg:"s"`
 }
 
 var (

@@ -12,8 +12,15 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println(cfg)
 
-	fmt.Println("hostname:", cfg.Name)
-	udp.Server()
+	u := udp.New("udp4", cfg)
+
+	if cfg.Message != "" {
+		u.Send([]byte(cfg.Message))
+		return
+	}
+
+	if cfg.ServerMode {
+		u.Server()
+	}
 }
