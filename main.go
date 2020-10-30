@@ -1,6 +1,7 @@
 package main
 
 import (
+	"barramento/command"
 	"barramento/config"
 	"barramento/udp"
 	"fmt"
@@ -13,7 +14,8 @@ func main() {
 		return
 	}
 
-	u := udp.New("udp4", cfg)
+	cmd := command.New()
+	u := udp.New("udp4", cfg, cmd)
 
 	if cfg.Message != "" {
 		u.Send([]byte(cfg.Message))

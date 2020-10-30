@@ -1,8 +1,8 @@
 package udp
 
 import (
+	"barramento/command"
 	"barramento/config"
-	"fmt"
 	"log"
 	"net"
 )
@@ -11,9 +11,10 @@ type UDP struct {
 	network     string
 	multicastIP string
 	cfg         *config.Config
+	cmd         command.CMD
 }
 
-func New(network string, cfg *config.Config) *UDP {
+func New(network string, cfg *config.Config, cmd command.CMD) *UDP {
 	m := cfg.IPv4
 	if network == "udp6" {
 		m = cfg.IPv6
@@ -22,6 +23,7 @@ func New(network string, cfg *config.Config) *UDP {
 		network:     network,
 		multicastIP: m,
 		cfg:         cfg,
+		cmd:         cmd,
 	}
 }
 
@@ -61,11 +63,13 @@ func (u *UDP) Server() error {
 			log.Println("error reading packet", err)
 			continue
 		}
-		go u.serve(pc, addr, buf[:n])
+		go u.runCMD(pc, addr, buf[:n])
 	}
 }
 
-func (u *UDP) serve(pc net.PacketConn, addr net.Addr, buf []byte) {
-	fmt.Printf("%s\n", buf)
-	pc.WriteTo(buf, addr)
+func (u *UDP) runCMD(pc net.PacketConn, addr net.Addr, buf []byte) {
+	err := u.cmd.Run(buf)
+	if err != nil {
+		log.Println(err)
+	}
 }
