@@ -15,7 +15,7 @@ func main() {
 	}
 
 	cmd := command.New()
-	u := udp.New("udp4", cfg, cmd)
+	u := udp.New("udp6", cfg, cmd)
 
 	if cfg.Message != "" {
 		u.Send([]byte(cfg.Message))
