@@ -4,7 +4,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/gosidekick/goconfig"
+	"crg.eti.br/go/config"
 )
 
 type Config struct {
@@ -25,9 +25,9 @@ var (
 func Get() (*Config, error) {
 	var err error
 	once.Do(func() {
-		goconfig.PrefixEnv = "br"
+		config.PrefixEnv = "br"
 		cfg = &Config{}
-		err = goconfig.Parse(cfg)
+		err = config.Parse(cfg)
 		if err != nil {
 			return
 		}
